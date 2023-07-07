@@ -2,6 +2,7 @@ package model;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -276,7 +277,6 @@ public class Supermarket {
      * @return total revenue
      */
     public double findTotalRevenue() {
-        // TODO Stap 5: use a stream to find the total of all bills
         return customers.stream()
                 .flatMap(customer -> customer.getItemsCart().entrySet().stream())
                 .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
@@ -289,7 +289,6 @@ public class Supermarket {
      * @return average revenue
      */
     public double findAverageRevenue() {
-        // TODO Stap 5: use a stream to find the average of the bills
         return customers.stream()
                 .mapToDouble(Customer::calculateTotalBill)
                 .average()
@@ -302,10 +301,11 @@ public class Supermarket {
      * @return Map with revenues per zip code
      */
     public Map<String, Double> getRevenueByZipcode() {
-        // TODO Stap 5: create an appropriate data structure for the revenue
-        //  use stream and collector to find the content
         return customers.stream()
-                .collect(Collectors.groupingBy(Customer::getZipCode, Collectors.summingDouble(Customer::calculateTotalBill)));
+                .collect(Collectors.groupingBy(Customer::getZipCode, Collectors.summingDouble(Customer::calculateTotalBill)))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
     }
 
 
@@ -315,9 +315,15 @@ public class Supermarket {
      * @return Set with products bought by most customers
      */
     public Set<Product> findMostPopularProducts() {
-        // TODO Stap 5: create an appropriate data structure for the most popular products and find its contents
-
-        return null;
+        Map<Product, Long> productCount = customers.stream()
+                .flatMap(customer -> customer.getItemsCart().keySet().stream())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        long maxCount = productCount.values().stream().max(Long::compare).orElse(0L);
+        Set<Product> mostPopularProducts = productCount.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxCount)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        return mostPopularProducts;
     }
 
     /**
@@ -327,10 +333,21 @@ public class Supermarket {
      * @return Map with most bought product per zip code
      */
     public Map<String, Product> findMostBoughtProductByZipcode() {
-        // TODO Stap 5: create an appropriate data structure for the mostBought
-        //  and calculate its contents
-
-        return null;
+        Map<String, Map<Product, Integer>> productsByZipcode = findNumberOfProductsByZipcode();
+        Map<String, Product> mostBoughtProductByZipcode = new HashMap<>();
+        for (Map.Entry<String, Map<Product, Integer>> entry : productsByZipcode.entrySet()) { String zipcode = entry.getKey();
+            Map<Product, Integer> productCount = entry.getValue();
+            int maxCount = productCount.values().stream()
+                    .max(Integer::compare)
+                    .orElse(0);
+            for (Map.Entry<Product, Integer> productEntry : productCount.entrySet()) {
+                if (productEntry.getValue() == maxCount) {
+                    mostBoughtProductByZipcode.put(zipcode, productEntry.getKey());
+                    break;
+                }
+            }
+        }
+        return mostBoughtProductByZipcode;
     }
 
     /**
@@ -339,10 +356,15 @@ public class Supermarket {
      * @return Map with revenues per interval
      */
     public Map<LocalTime, Double> calculateRevenuePerInterval(int minutes) {
-        // TODO Stap 5: create an appropiate data structure for the revenue per time interval
-        //  Start time of an interval is a key. Find the total revenue for each interval
+        Map<LocalTime, Double> revenuePerInterval = new TreeMap<>();
+        customers.forEach(customer -> {
+            LocalTime startTime = customer.getQueuedAt();
+            LocalTime intervalStartTime = startTime.minusMinutes(startTime.getMinute() % minutes);
+            double revenue = customer.calculateTotalBill();
 
-        return null;
+            revenuePerInterval.compute(intervalStartTime, (key, value) -> (value != null) ? value + revenue : revenue);
+        });
+        return revenuePerInterval;
     }
 
     private void printTopCustomerStatistics() {
@@ -385,10 +407,7 @@ public class Supermarket {
 
     private String formatZipCodes(Set<String> zipCodes) {
         final int ZIP_CODE_SEPARATOR_LENGTH = 2;
-        // Verwijderen van de vierkante haken [] uit zipCodes
         String cleanZipCodes = zipCodes.toString().replaceAll("\\[|\\]", "");
-
-        // Nieuwe regel na elke 8 zipcodes
         String[] zipCodeArray = cleanZipCodes.split(", ");
         StringBuilder formattedZipCodes = new StringBuilder();
         for (int i = 0; i < zipCodeArray.length; i++) {
@@ -397,19 +416,22 @@ public class Supermarket {
             }
             formattedZipCodes.append(zipCodeArray[i]).append(", ");
         }
-        // Verwijder de komma en spatie aan het einde van de laatste regel
         if (formattedZipCodes.length() > 0) {
             formattedZipCodes.setLength(formattedZipCodes.length() - ZIP_CODE_SEPARATOR_LENGTH);
         }
-
         return formattedZipCodes.toString();
     }
 
     private void printMostPopularProducts() {
         System.out.println(">>> Most popular products");
         System.out.println();
+        Set<Product> mostPopularProducts = findMostPopularProducts();
         // TODO stap 5: display the product(s) that most customers bought
         System.out.println("Product(s) bought by most customers: ");
+        for (Product product : mostPopularProducts) {
+            System.out.printf("\t %s" ,product.getDescription());
+        }
+
         System.out.println();
     }
 
@@ -417,6 +439,34 @@ public class Supermarket {
         System.out.println(">>> Most bought products per zipcode");
         System.out.println();
         // TODO stap 5: display most bought products per zipcode
+        // Stap 1: Verkrijg de map met het aantal producten per postcode
+        Map<String, Map<Product, Integer>> productsByZipcode = findNumberOfProductsByZipcode();
+
+        // Stap 2: Sorteer de postcodes in oplopende volgorde
+        List<String> sortedZipcodes = new ArrayList<>(productsByZipcode.keySet());
+        Collections.sort(sortedZipcodes);
+
+        // Stap 3: Itereer over elke postcode en bijbehorende map van producten en aantallen
+        for (String zipcode : sortedZipcodes) {
+            Map<Product, Integer> productCount = productsByZipcode.get(zipcode);
+
+            // Stap 4: Bepaal het maximale aantal aankopen per postcode
+            int maxCount = productCount.values().stream()
+                    .max(Integer::compare)
+                    .orElse(0);
+
+            // Stap 5: Filter de producten met het maximale aantal aankopen
+            Set<Product> mostBoughtProducts = productCount.entrySet().stream()
+                    .filter(e -> e.getValue() == maxCount)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+
+            // Druk de postcode af, gevolgd door de producten
+            for (Product product : mostBoughtProducts) {
+                System.out.printf("%s \t %s",zipcode, product.getDescription());
+            }
+            System.out.println();
+        }
         System.out.println();
     }
 
