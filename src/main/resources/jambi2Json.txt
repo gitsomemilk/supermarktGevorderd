@@ -1,0 +1,11 @@
+Supermarket
+{"name":"Jambi","openTime":"12:00:00","closingTime":"12:05:00"}
+Products
+{"code":"VOE001","description":"Douwe Egberts snelfilter 500g","price":4.25}
+{"code":"LEV001","description":"Calve Pindakaas 650g","price":6.35}
+{"code":"ZUI003","description":"Verse scharreleieren 4 stuks","price":1.26}
+{"code":"BRO001","description":"Croissant","price":0.5}
+{"code":"SCH001","description":"Robijn stralend wit","price":6.85}
+Customers
+{"queuedAt":"12:04:14","zipCode":"1013MF","itemsCart":[[{"code":"BRO001","description":"Croissant","price":0.5},1]],"actualWaitingTime":0,"actualCheckOutTime":0}
+{"queuedAt":"12:03:58","zipCode":"1013MF","itemsCart":[[{"code":"BRO001","description":"Croissant","price":0.5},1],[{"code":"VOE001","description":"Douwe Egberts snelfilter 500g","price":4.25},1]],"actualWaitingTime":0,"actualCheckOutTime":0}

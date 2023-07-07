@@ -1,0 +1,35 @@
+Supermarket
+{"name":"Jambi","openTime":"12:00:00","closingTime":"12:05:00"}
+Products
+{"code":"ZUI003","description":"Verse scharreleieren 4 stuks","price":1.26}
+{"code":"DIE002","description":"Purina kip adult 1.5Kg","price":13.25}
+{"code":"VLE002","description":"Filetlapjes 700g","price":3.85}
+{"code":"VOE001","description":"Douwe Egberts snelfilter 500g","price":4.25}
+{"code":"SCH001","description":"Robijn stralend wit","price":6.85}
+{"code":"SNA002","description":"Studentenhaver 300g","price":3.85}
+{"code":"ZUI004","description":"Old Amsterdam stuk 1Kg","price":8.26}
+{"code":"LEV001","description":"Calve Pindakaas 650g","price":6.35}
+{"code":"SCH002","description":"Robijn kleur en fijn","price":8.85}
+{"code":"DRA002","description":"Hertog Jan 6-pack","price":4.85}
+{"code":"VLE003","description":"Eendeborst 500g","price":19.85}
+{"code":"GRO001","description":"Paprika","price":0.75}
+{"code":"GRO003","description":"Aardappelen vastkokend 2.5Kg","price":2.09}
+{"code":"BRO002","description":"Kaiser broodje","price":0.35}
+{"code":"DIE001","description":"Gourmet tonijn 100g","price":0.85}
+{"code":"BRO003","description":"Zaanse snijder heel","price":1.28}
+{"code":"DRA003","description":"Coca Cola Zero 1.5L","price":1.46}
+{"code":"GRO002","description":"Bloemkool","price":1.0}
+{"code":"ZUI002","description":"Campina magere yoghurt 1.5L","price":1.35}
+{"code":"BRO001","description":"Croissant","price":0.5}
+{"code":"LEV002","description":"Bonne Maman aardbeienjam","price":3.65}
+{"code":"SNA001","description":"Cashew noten 300g","price":3.85}
+{"code":"DRA004","description":"Multivruchtensap 2L","price":2.81}
+{"code":"VLE001","description":"Kip kilo knaller","price":4.85}
+{"code":"ZUI001","description":"Campina halfvolle melk 1L","price":0.76}
+Customers
+{"queuedAt":"12:00:32","zipCode":"1015DP","itemsCart":[[{"code":"BRO001","description":"Croissant","price":0.5},2],[{"code":"SCH001","description":"Robijn stralend wit","price":6.85},1]],"actualWaitingTime":0,"actualCheckOutTime":0}
+{"queuedAt":"12:00:28","zipCode":"1015DK","itemsCart":[[{"code":"LEV001","description":"Calve Pindakaas 650g","price":6.35},5]],"actualWaitingTime":0,"actualCheckOutTime":0}
+{"queuedAt":"12:01:51","zipCode":"1014DA","itemsCart":[[{"code":"LEV001","description":"Calve Pindakaas 650g","price":6.35},5],[{"code":"ZUI003","description":"Verse scharreleieren 4 stuks","price":1.26},1],[{"code":"SCH001","description":"Robijn stralend wit","price":6.85},2]],"actualWaitingTime":0,"actualCheckOutTime":0}
+{"queuedAt":"12:00:18","zipCode":"1014DA","itemsCart":[[{"code":"ZUI003","description":"Verse scharreleieren 4 stuks","price":1.26},8]],"actualWaitingTime":0,"actualCheckOutTime":0}
+{"queuedAt":"12:04:23","zipCode":"1016DK","itemsCart":[],"actualWaitingTime":0,"actualCheckOutTime":0}
+{"queuedAt":"12:00:39","zipCode":"1015DK","itemsCart":[[{"code":"LEV001","description":"Calve Pindakaas 650g","price":6.35},1]],"actualWaitingTime":0,"actualCheckOutTime":0}
