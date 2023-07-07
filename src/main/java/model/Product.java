@@ -23,7 +23,11 @@ public class Product implements Comparable<Product> {
 
     @Override
     public int compareTo(Product other) {
-        return this.getDescription().compareTo(other.getDescription());
+        int descriptionComparison = this.getDescription().compareTo(other.getDescription());
+        if (descriptionComparison != 0) {
+            return descriptionComparison;
+        }
+        return this.getCode().compareTo(other.getCode());
     }
     // Overrides of equals() and hashCode() methods for HashSet and HashMap
     @Override

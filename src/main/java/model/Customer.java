@@ -1,6 +1,7 @@
 package model; /**
  * Supermarket Customer check-out and Cashier simulation
- * @author  hbo-ict@hva.nl
+ *
+ * @author Max de Bood
  */
 
 
@@ -10,11 +11,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public class Customer implements Comparable<Customer> {
-    private LocalTime queuedAt;      // time of arrival at cashier
-    private String zipCode;          // zip-code of the customer
-    private Map<Product, Integer> itemsCart = new HashMap<>();;     // items purchased by customer
-    private int actualWaitingTime;   // actual waiting time in seconds before check-out
-    private int actualCheckOutTime;  // actual check-out time at cashier in seconds
+    private LocalTime queuedAt;
+    private String zipCode;
+    private Map<Product, Integer> itemsCart = new HashMap<>();
+
 
     public Customer() {
     }
@@ -26,21 +26,20 @@ public class Customer implements Comparable<Customer> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o ) return true;
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Customer customer =(Customer) o;
-        return Objects.equals(queuedAt,customer.queuedAt) && Objects.equals(zipCode, customer.zipCode);
+        Customer customer = (Customer) o;
+        return Objects.equals(queuedAt, customer.queuedAt) && Objects.equals(zipCode, customer.zipCode);
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(queuedAt, zipCode);
     }
 
-    // Override compareTo() method voor de TreeSet and TreeMap
     @Override
-    public int compareTo(Customer other){
-        return  this.queuedAt.compareTo(other.queuedAt);
+    public int compareTo(Customer other) {
+        return this.queuedAt.compareTo(other.queuedAt);
     }
 
     /**
@@ -49,18 +48,18 @@ public class Customer implements Comparable<Customer> {
      */
     public int getNumberOfItems() {
         int numItems = 0;
-        for (int quantity:itemsCart.values()) numItems += quantity;
+        for (int quantity : itemsCart.values()) numItems += quantity;
         return numItems;
     }
 
 
     public void addToCart(Product product, int number) {
-      if (itemsCart.containsKey(product)) {
-          int huidigeQuantity = itemsCart.get(product);
-          itemsCart.put(product, huidigeQuantity + number);
-      } else {
-          itemsCart.put(product, number);
-      }
+        if (itemsCart.containsKey(product)) {
+            int huidigeQuantity = itemsCart.get(product);
+            itemsCart.put(product, huidigeQuantity + number);
+        } else {
+            itemsCart.put(product, number);
+        }
     }
 
     public double calculateTotalBill() {
@@ -72,7 +71,7 @@ public class Customer implements Comparable<Customer> {
     public String toString() {
         StringBuilder result = new StringBuilder("queuedAt: " + queuedAt);
         result.append("\nzipCode: " + zipCode);
-        result.append("\nPurchases:" );
+        result.append("\nPurchases:");
         for (Product product : itemsCart.keySet()) {
             result.append("\n\t" + product + ": " + itemsCart.get(product));
         }

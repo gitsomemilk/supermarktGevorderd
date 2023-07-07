@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
  */
 public class Supermarket {
 
-    private String name;                 // name of the case for reporting purposes
-    private Set<Product> products;      // a set of products that is being sold in the supermarket
-    private Set<Customer> customers;   // a set of customers that have visited the supermarket
-    private LocalTime openTime;         // start time of the simulation
-    private LocalTime closingTime;      // end time of the simulation
-    private static final int INTERVAL_IN_MINUTES = 15; // to use for number of customers and revenues per 15 minute intervals
+    private String name;
+    private Set<Product> products;
+    private Set<Customer> customers;
+    private LocalTime openTime;
+    private LocalTime closingTime;
+    private static final int INTERVAL_IN_MINUTES = 15;
 
     public Supermarket() {
         initializeCollections();
@@ -55,6 +55,7 @@ public class Supermarket {
 
     /**
      * report statistics of data of products
+     * heb ik opgesplitst in kleiner methodes
      */
     public void printProductStatistics() {
         if (checkSetupErrorProductCustomers()) {
@@ -67,59 +68,154 @@ public class Supermarket {
         printMostPopularProducts();
         printMostBoughtProductsPerZipCode();
     }
-
-
     /**
      * report statistics of the input data of customer
+     *ik heb deze methode ook uit elkaar gehaald omdat hij anders te lang werd
      */
     public void printCustomerStatistics() {
         if (checkSetupErrorProductCustomers()) {
             printErrorMessage();
             return;
         }
-        System.out.println("\n>>>>> Customer Statistics of all purchases <<<<<");
-        System.out.println();
-        System.out.printf("Customer that has the highest bill of %.2f euro: \n", findHighestBill());
-        System.out.println(findMostPayingCustomer());
-        System.out.println();
-        System.out.println(">>> Time intervals with number of customers\n");
-        Map<LocalTime, Integer> customersPerQuarterhour = countCustomersPerInterval(INTERVAL_IN_MINUTES);
-        for (Map.Entry<LocalTime, Integer> entry : customersPerQuarterhour.entrySet()) {
-            LocalTime startTime = entry.getKey();
-            int count = entry.getValue();
-            LocalTime endTime = startTime.plusMinutes(INTERVAL_IN_MINUTES);
-            System.out.printf("Between %s and %s the number of customers was %d\n", startTime, endTime, count);
-        }
-
+        System.out.println("\n>>>>> Customer Statistics of all purchases <<<<<\n");
+        System.out.printf("Customer with the highest bill of %.2f euro:\n%s\n\n", findHighestBill(), findMostPayingCustomer());
+        printCustomersPerInterval(INTERVAL_IN_MINUTES);
     }
 
+
+    private void printCustomersPerInterval(int intervalInMinutes) {
+        System.out.println(">>> Time intervals with number of customers\n");
+        countCustomersPerInterval(intervalInMinutes).forEach((startTime, count) -> {
+            LocalTime endTime = startTime.plusMinutes(intervalInMinutes);
+            System.out.printf("Between %s and %s, the number of customers was %d\n", startTime, endTime, count);
+        });
+    }
     /**
      * report statistics of the input data of customer
+     * deze heb ik ook uit elkaar gehaald en opgesplitst in kleinere methodes
      */
     public void printRevenueStatistics() {
         System.out.println("\n>>>>> Revenue Statistics of all purchases <<<<<");
-        // TODO stap 5: calculate and show the total revenue and the average revenue
         System.out.printf("\nTotal revenue = %.2f\nAverage revenue per customer = %.2f\n", findTotalRevenue(), findAverageRevenue());
         System.out.println();
-        System.out.print(">>> Revenues per zip-code:\n");
+        printRevenuesByZipcode();
         System.out.println();
-        // TODO stap 5 calculate and show total revenues per zipcode, use forEach and lambda expression
-        Map<String, Double> revenues = this.getRevenueByZipcode();
+        printRevenuesByTimeInterval();
+    }
 
-        System.out.println();
-        System.out.printf(">>> Revenues per interval of %d minutes\n", INTERVAL_IN_MINUTES);
-        System.out.println();
-        // TODO stap 5: show the revenues per time interval of 15 minutes, use forEach and lambda expression
+    private void printRevenuesByZipcode() {
+        System.out.print(">>> Revenues per zip-code:\n");
+        Map<String, Double> revenues = this.getRevenueByZipcode();
+        revenues.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> System.out.printf("%s: \t%.2f\n", entry.getKey(), entry.getValue()));
 
     }
 
+    private void printRevenuesByTimeInterval() {
+        System.out.printf(">>> Revenues per interval of %d minutes\n", INTERVAL_IN_MINUTES);
+        Map<LocalTime, Double> revenuesPerInterval = calculateRevenuePerInterval(INTERVAL_IN_MINUTES);
 
+        for (Map.Entry<LocalTime, Double> entry : revenuesPerInterval.entrySet()) {
+            LocalTime startTime = entry.getKey();
+            double revenue = entry.getValue();
+            LocalTime endTime = startTime.plusMinutes(INTERVAL_IN_MINUTES);
+
+            System.out.printf("Between %s and %s the revenue was %.2f\n", startTime, endTime, revenue);
+        }
+    }
+
+    private void printTopCustomerStatistics() {
+        System.out.printf("\nCustomer Statistics of '%s' between %s and %s\n",
+                this.name, this.openTime, this.closingTime);
+    }
+
+    private void printProductSummary() {
+        System.out.println("\n>>>>> Product Statistics of all purchases <<<<<");
+        System.out.println();
+        System.out.printf("%d customers have shopped %d items out of %d different products\n",
+                this.customers.size(), this.getTotalNumberOfItems(), this.products.size());
+        System.out.println();
+        System.out.println(">>> Products and total number bought:");
+
+        // Sorteer de producten op alfabetische volgorde
+        List<Product> sortedProducts = new ArrayList<>(products);
+        Collections.sort(sortedProducts);
+        for (Product product : sortedProducts) {
+            int numBought = findNumberOfProductsBought().getOrDefault(product, 0);
+            System.out.printf("%-30s \t%d %n", product.getDescription(), numBought);
+        }
+        System.out.println();
+    }
+
+    private void printProductZipCodes() {
+        System.out.println(">>> Products and zipcodes");
+        Map<Product, Set<String>> zipCodesPerProduct = findZipcodesPerProduct();
+        List<Map.Entry<Product, Set<String>>> sortedEntries = new ArrayList<>(zipCodesPerProduct.entrySet());
+        Collections.sort(sortedEntries, (entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()));
+        for (Map.Entry<Product, Set<String>> entry : sortedEntries) {
+            Product product = entry.getKey();
+            Set<String> zipCodes = entry.getValue();
+            String formattedZipCodes = formatZipCodes(zipCodes);
+            System.out.printf("%-30s\n \t%s\n", product.getDescription(), formattedZipCodes);
+        }
+        System.out.println();
+    }
+
+
+    private String formatZipCodes(Set<String> zipCodes) {
+        final int ZIP_CODE_SEPARATOR_LENGTH = 2;
+        String cleanZipCodes = zipCodes.toString().replaceAll("\\[|\\]", "");
+        String[] zipCodeArray = cleanZipCodes.split(", ");
+        StringBuilder formattedZipCodes = new StringBuilder();
+        for (int i = 0; i < zipCodeArray.length; i++) {
+            if (i > 0 && i % 8 == 0) {
+                formattedZipCodes.append("\n\t");
+            }
+            formattedZipCodes.append(zipCodeArray[i]).append(", ");
+        }
+        if (formattedZipCodes.length() > 0) {
+            formattedZipCodes.setLength(formattedZipCodes.length() - ZIP_CODE_SEPARATOR_LENGTH);
+        }
+        return formattedZipCodes.toString();
+    }
+
+    private void printMostPopularProducts() {
+        System.out.println(">>> Most popular products");
+        System.out.println();
+        Set<Product> mostPopularProducts = findMostPopularProducts();
+        System.out.println("Product(s) bought by most customers: ");
+        for (Product product : mostPopularProducts) {
+            System.out.printf("\t %s", product.getDescription());
+        }
+        System.out.println();
+    }
+
+    private void printMostBoughtProductsPerZipCode() {
+        System.out.println(">>> Most bought products per zipcode");
+        System.out.println();
+        Map<String, Map<Product, Integer>> productsByZipcode = findNumberOfProductsByZipcode();
+        List<String> sortedZipcodes = new ArrayList<>(productsByZipcode.keySet());
+        Collections.sort(sortedZipcodes);
+        for (String zipcode : sortedZipcodes) {
+            Map<Product, Integer> productCount = productsByZipcode.get(zipcode);
+            int maxCount = productCount.values().stream()
+                    .max(Integer::compare)
+                    .orElse(0);
+            Set<Product> mostBoughtProducts = productCount.entrySet().stream()
+                    .filter(e -> e.getValue() == maxCount)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+            for (Product product : mostBoughtProducts) {
+                System.out.printf("%s \t %s%n", zipcode, product.getDescription());
+            }
+        }
+    }
     /**
      * @return Map with total number of purchases per product
      */
     public Map<Product, Integer> findNumberOfProductsBought() {
         Map<Product, Integer> numberOfProductsBought = new HashMap<>();
-
         for (Customer customer : customers) {
             Map<Product, Integer> itemsCart = customer.getItemsCart();
             for (Map.Entry<Product, Integer> entry : itemsCart.entrySet()) {
@@ -129,9 +225,7 @@ public class Supermarket {
                 numberOfProductsBought.put(product, numberOfProductsBought.getOrDefault(product, 0) + quantity);
             }
         }
-
         return numberOfProductsBought;
-
     }
 
     /**
@@ -165,23 +259,18 @@ public class Supermarket {
      */
     public Map<String, Map<Product, Integer>> findNumberOfProductsByZipcode() {
         Map<String, Map<Product, Integer>> numberOfProductsByZipcode = new HashMap<>();
-
         for (Customer customer : customers) {
             String zipCode = customer.getZipCode();
             Map<Product, Integer> itemsCart = customer.getItemsCart();
-
             if (!numberOfProductsByZipcode.containsKey(zipCode)) {
                 numberOfProductsByZipcode.put(zipCode, new HashMap<>());
             }
-
             for (Map.Entry<Product, Integer> entry : itemsCart.entrySet()) {
                 Product product = entry.getKey();
                 int quantity = entry.getValue();
-
                 numberOfProductsByZipcode.get(zipCode).put(product, numberOfProductsByZipcode.get(zipCode).getOrDefault(product, 0) + quantity);
             }
         }
-
         return numberOfProductsByZipcode;
     }
 
@@ -335,7 +424,8 @@ public class Supermarket {
     public Map<String, Product> findMostBoughtProductByZipcode() {
         Map<String, Map<Product, Integer>> productsByZipcode = findNumberOfProductsByZipcode();
         Map<String, Product> mostBoughtProductByZipcode = new HashMap<>();
-        for (Map.Entry<String, Map<Product, Integer>> entry : productsByZipcode.entrySet()) { String zipcode = entry.getKey();
+        for (Map.Entry<String, Map<Product, Integer>> entry : productsByZipcode.entrySet()) {
+            String zipcode = entry.getKey();
             Map<Product, Integer> productCount = entry.getValue();
             int maxCount = productCount.values().stream()
                     .max(Integer::compare)
@@ -357,118 +447,28 @@ public class Supermarket {
      */
     public Map<LocalTime, Double> calculateRevenuePerInterval(int minutes) {
         Map<LocalTime, Double> revenuePerInterval = new TreeMap<>();
-        customers.forEach(customer -> {
-            LocalTime startTime = customer.getQueuedAt();
-            LocalTime intervalStartTime = startTime.minusMinutes(startTime.getMinute() % minutes);
-            double revenue = customer.calculateTotalBill();
+        LocalTime startTime = openTime;
+        LocalTime endTime = openTime.plusMinutes(minutes);
 
-            revenuePerInterval.compute(intervalStartTime, (key, value) -> (value != null) ? value + revenue : revenue);
-        });
+        while (endTime.isBefore(closingTime) || endTime.equals(closingTime)) {
+            LocalTime finalStartTime = startTime;
+            LocalTime finalEndTime = endTime;
+            double totalRevenue = customers.stream()
+                    .filter(customer -> customer.getQueuedAt().isAfter(finalStartTime) && customer.getQueuedAt().isBefore(finalEndTime))
+                    .flatMap(customer -> customer.getItemsCart().entrySet().stream())
+                    .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
+                    .sum();
+
+            revenuePerInterval.put(startTime, totalRevenue);
+
+            startTime = endTime;
+            endTime = endTime.plusMinutes(minutes);
+        }
+
         return revenuePerInterval;
     }
 
-    private void printTopCustomerStatistics() {
-        System.out.printf("\nCustomer Statistics of '%s' between %s and %s\n",
-                this.name, this.openTime, this.closingTime);
-    }
 
-    private void printProductSummary() {
-        System.out.println("\n>>>>> Product Statistics of all purchases <<<<<");
-        System.out.println();
-        System.out.printf("%d customers have shopped %d items out of %d different products\n",
-                this.customers.size(), this.getTotalNumberOfItems(), this.products.size());
-        System.out.println();
-        System.out.println(">>> Products and total number bought:");
-
-        // Sorteer de producten op alfabetische volgorde
-        List<Product> sortedProducts = new ArrayList<>(products);
-        Collections.sort(sortedProducts);
-        for (Product product : sortedProducts) {
-            int numBought = findNumberOfProductsBought().getOrDefault(product, 0);
-            System.out.printf("%-30s \t%d %n", product.getDescription(), numBought);
-        }
-        System.out.println();
-    }
-
-    private void printProductZipCodes() {
-        System.out.println(">>> Products and zipcodes");
-        Map<Product, Set<String>> zipCodesPerProduct = findZipcodesPerProduct();
-        List<Map.Entry<Product, Set<String>>> sortedEntries = new ArrayList<>(zipCodesPerProduct.entrySet());
-        Collections.sort(sortedEntries, (entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()));
-        for (Map.Entry<Product, Set<String>> entry : sortedEntries) {
-            Product product = entry.getKey();
-            Set<String> zipCodes = entry.getValue();
-            String formattedZipCodes = formatZipCodes(zipCodes);
-            System.out.printf("%-30s\n \t%s\n", product.getDescription(), formattedZipCodes);
-        }
-        System.out.println();
-    }
-
-
-    private String formatZipCodes(Set<String> zipCodes) {
-        final int ZIP_CODE_SEPARATOR_LENGTH = 2;
-        String cleanZipCodes = zipCodes.toString().replaceAll("\\[|\\]", "");
-        String[] zipCodeArray = cleanZipCodes.split(", ");
-        StringBuilder formattedZipCodes = new StringBuilder();
-        for (int i = 0; i < zipCodeArray.length; i++) {
-            if (i > 0 && i % 8 == 0) {
-                formattedZipCodes.append("\n\t");
-            }
-            formattedZipCodes.append(zipCodeArray[i]).append(", ");
-        }
-        if (formattedZipCodes.length() > 0) {
-            formattedZipCodes.setLength(formattedZipCodes.length() - ZIP_CODE_SEPARATOR_LENGTH);
-        }
-        return formattedZipCodes.toString();
-    }
-
-    private void printMostPopularProducts() {
-        System.out.println(">>> Most popular products");
-        System.out.println();
-        Set<Product> mostPopularProducts = findMostPopularProducts();
-        // TODO stap 5: display the product(s) that most customers bought
-        System.out.println("Product(s) bought by most customers: ");
-        for (Product product : mostPopularProducts) {
-            System.out.printf("\t %s" ,product.getDescription());
-        }
-
-        System.out.println();
-    }
-
-    private void printMostBoughtProductsPerZipCode() {
-        System.out.println(">>> Most bought products per zipcode");
-        System.out.println();
-        // TODO stap 5: display most bought products per zipcode
-        // Stap 1: Verkrijg de map met het aantal producten per postcode
-        Map<String, Map<Product, Integer>> productsByZipcode = findNumberOfProductsByZipcode();
-
-        // Stap 2: Sorteer de postcodes in oplopende volgorde
-        List<String> sortedZipcodes = new ArrayList<>(productsByZipcode.keySet());
-        Collections.sort(sortedZipcodes);
-
-        // Stap 3: Itereer over elke postcode en bijbehorende map van producten en aantallen
-        for (String zipcode : sortedZipcodes) {
-            Map<Product, Integer> productCount = productsByZipcode.get(zipcode);
-
-            // Stap 4: Bepaal het maximale aantal aankopen per postcode
-            int maxCount = productCount.values().stream()
-                    .max(Integer::compare)
-                    .orElse(0);
-
-            // Stap 5: Filter de producten met het maximale aantal aankopen
-            Set<Product> mostBoughtProducts = productCount.entrySet().stream()
-                    .filter(e -> e.getValue() == maxCount)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-
-            // Druk de postcode af, gevolgd door de producten
-            for (Product product : mostBoughtProducts) {
-                System.out.printf("%s \t %s",zipcode, product.getDescription());
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
 
 
     public Set<Product> getProducts() {

@@ -36,11 +36,12 @@ class ProductTest {
     void t012_productsCanBeSorted() {
         Product p1 = new Product("ABC", "XXX", 1.0);
         Product p2 = new Product("ABC", "YYY", 2.0);
-        Product p3 = new Product("DEF", "XXX", 1.0);
+        Product p3 = new Product("DEF", "XXX", 3.0);
         assertTrue(p1 instanceof Comparable);
-        assertThat(p1, is(lessThan((Comparable)p3)));
-        assertThat(p3, is(greaterThan((Comparable)p1)));
-        assertThat(p1, is(equalTo((Comparable)p2)));
+        assertThat(p1, is(lessThan(p2)));
+        assertThat(p2, is(greaterThan(p1)));
+        assertThat(p1, is(lessThan(p3)));
+        assertThat(p3, is(greaterThan(p1)));
     }
 
     @Test

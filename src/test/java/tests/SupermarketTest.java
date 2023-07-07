@@ -54,7 +54,7 @@ class SupermarketTest {
         // Tests for supermarket1
         assertEquals(Set.of("1015MF"), supermarket1.getNumberOfProductsByZipcode().keySet());
         Map<Product, Integer> numberOfProducts = supermarket1.getNumberOfProductsByZipcode().get("1015MF");
-        assertEquals( Set.of(p1, p2, p3 ), numberOfProducts.keySet());
+        assertEquals(Set.of(p1, p2, p3), numberOfProducts.keySet());
         assertEquals(2, numberOfProducts.get(p1));
         assertEquals(3, numberOfProducts.get(p2));
         assertEquals(5, numberOfProducts.get(p3));
@@ -63,7 +63,7 @@ class SupermarketTest {
         // Tests for supermarket2
         assertEquals(supermarket2.getNumberOfProductsByZipcode().keySet(), Set.of("1013MF"));
         numberOfProducts = supermarket2.getNumberOfProductsByZipcode().get("1013MF");
-        assertEquals( Set.of(p1, p2), numberOfProducts.keySet());
+        assertEquals(Set.of(p1, p2), numberOfProducts.keySet());
         assertEquals(1, numberOfProducts.get(p1));
         assertEquals(2, numberOfProducts.get(p2));
         // Get products from supermarket5 purchases
@@ -96,14 +96,16 @@ class SupermarketTest {
 
     @Test
     void t041_highestBillIsCorrect() {
-        // TODO stap 6: write the testcode
-        Assertions.fail("Test not yet implemented ");
+        assertEquals(33.84, supermarket1.findHighestBill(), 0.01);
+        assertEquals(4.75, supermarket2.findHighestBill(), 0.01);
+        assertEquals(46.71, supermarket5.findHighestBill(), 0.01);
     }
 
     @Test
     void t042_mostPayingCustomerIsCorrect() {
-        // TODO stap 6: write the testcode
-        Assertions.fail("Test not yet implemented ");
+        assertEquals("1015MF", supermarket1.findMostPayingCustomer().getZipCode());
+        assertEquals("1013MF", supermarket2.findMostPayingCustomer().getZipCode());
+        assertEquals("1014DA", supermarket5.findMostPayingCustomer().getZipCode());
     }
 
     @Test
@@ -125,15 +127,15 @@ class SupermarketTest {
         assertEquals(customersPerInterval.get(LocalTime.parse("12:04:00")), 1);
     }
 
-    private Map<LocalTime, Integer> produceCustomersPerInterval(Supermarket supermarket, int minutes){
+    private Map<LocalTime, Integer> produceCustomersPerInterval(Supermarket supermarket, int minutes) {
         return supermarket.countCustomersPerInterval(minutes);
     }
 
     @Test
     void t051_totalRevenueIsCorrect() {
-        // TODO stap 6: write the testcode
-       Assertions.fail("Test not yet implemented ");
-
+        assertThat(supermarket1.findTotalRevenue(), is(closeTo(33.85, 0.001)));
+        assertThat(supermarket2.findTotalRevenue(), is(closeTo(5.25, 0.001)));
+        assertThat(supermarket5.findTotalRevenue(), is(closeTo(102.74, 0.001)));
     }
 
     @Test
@@ -146,7 +148,7 @@ class SupermarketTest {
     @Test
     void t053_mostPopularProductIsCorrect() {
         assertEquals(produceMostPopularProductsDescriptions(supermarket1),
-                Set.of("Douwe Egberts snelfilter 500g", "Verse scharreleieren 4 stuks", "Calve Pindakaas 650g" ));
+                Set.of("Douwe Egberts snelfilter 500g", "Verse scharreleieren 4 stuks", "Calve Pindakaas 650g"));
         assertEquals(produceMostPopularProductsDescriptions(supermarket2), Set.of("Croissant"));
         assertEquals(produceMostPopularProductsDescriptions(supermarket5), Set.of("Calve Pindakaas 650g"));
     }
@@ -161,12 +163,12 @@ class SupermarketTest {
         assertEquals(supermarket1.getRevenueByZipcode().keySet(), Set.of("1015MF"));
         assertEquals(supermarket2.getRevenueByZipcode().keySet(), Set.of("1013MF"));
         assertThat(supermarket5.getRevenueByZipcode().keySet().toString(), is(Set.of("1014DA, 1015DK, 1015DP, 1016DK").toString()));
-        assertThat(supermarket1.getRevenueByZipcode().get("1015MF"), is(closeTo(33.85,0.0001)));
-        assertThat(supermarket2.getRevenueByZipcode().get("1013MF"), is(closeTo(5.25,0.0001)));
-        assertThat(supermarket5.getRevenueByZipcode().get("1014DA"), is(closeTo(56.79,0.0001)));
-        assertThat(supermarket5.getRevenueByZipcode().get("1015DK"), is(closeTo(38.10,0.0001)));
-        assertThat(supermarket5.getRevenueByZipcode().get("1015DP"), is(closeTo(7.85,0.0001)));
-        assertThat(supermarket5.getRevenueByZipcode().get("1016DK"), is(closeTo(0.0,0.0001)));
+        assertThat(supermarket1.getRevenueByZipcode().get("1015MF"), is(closeTo(33.85, 0.0001)));
+        assertThat(supermarket2.getRevenueByZipcode().get("1013MF"), is(closeTo(5.25, 0.0001)));
+        assertThat(supermarket5.getRevenueByZipcode().get("1014DA"), is(closeTo(56.79, 0.0001)));
+        assertThat(supermarket5.getRevenueByZipcode().get("1015DK"), is(closeTo(38.10, 0.0001)));
+        assertThat(supermarket5.getRevenueByZipcode().get("1015DP"), is(closeTo(7.85, 0.0001)));
+        assertThat(supermarket5.getRevenueByZipcode().get("1016DK"), is(closeTo(0.0, 0.0001)));
     }
 
 
