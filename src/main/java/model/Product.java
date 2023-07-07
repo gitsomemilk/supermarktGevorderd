@@ -4,13 +4,14 @@ import java.util.Objects;
 
 /**
  * Supermarket Customer check-out
- * @author  Max de Bood
+ *
+ * @author Max de Bood
  */
 
 public class Product implements Comparable<Product> {
-    private String code;            // a unique product code; identical codes designate identical products
-    private String description;     // the product description, useful for reporting
-    private double price;           // the product's price
+    private String code;
+    private String description;
+    private double price;
 
     public Product() {
     }
@@ -29,6 +30,7 @@ public class Product implements Comparable<Product> {
         }
         return this.getCode().compareTo(other.getCode());
     }
+
     // Overrides of equals() and hashCode() methods for HashSet and HashMap
     @Override
     public boolean equals(Object o) {
@@ -39,7 +41,7 @@ public class Product implements Comparable<Product> {
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(code);
     }
 

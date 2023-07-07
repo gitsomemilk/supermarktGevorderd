@@ -1,15 +1,13 @@
-package model; /**
- * Supermarket Customer check-out and Cashier simulation
- *
- * @author Max de Bood
- */
-
-
+package model;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
+/**
+ * Supermarket Customer check-out and Cashier simulation
+ *
+ * @author Max de Bood
+ */
 public class Customer implements Comparable<Customer> {
     private LocalTime queuedAt;
     private String zipCode;
@@ -44,7 +42,7 @@ public class Customer implements Comparable<Customer> {
 
     /**
      * calculate the total number of items purchased by this customer
-     * @return
+     * @return Het totale aantal items in het winkelwagentje.
      */
     public int getNumberOfItems() {
         int numItems = 0;
@@ -70,10 +68,10 @@ public class Customer implements Comparable<Customer> {
 
     public String toString() {
         StringBuilder result = new StringBuilder("queuedAt: " + queuedAt);
-        result.append("\nzipCode: " + zipCode);
+        result.append("\nzipCode: ").append(zipCode);
         result.append("\nPurchases:");
         for (Product product : itemsCart.keySet()) {
-            result.append("\n\t" + product + ": " + itemsCart.get(product));
+            result.append("\n\t").append(product).append(": ").append(itemsCart.get(product));
         }
         result.append("\n");
         return result.toString();
